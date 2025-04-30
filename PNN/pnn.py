@@ -77,8 +77,8 @@ class PNN(Estimator):
              np.ndarray (n_samples): Predicted labels.
         """
 
-        pattern_output = self.__pattern_layer.forward(X)
-        summation_output = self.__summation_layer.forward(*pattern_output)
+        k, y, d = self.__pattern_layer.forward(X)
+        summation_output = self.__summation_layer.forward(k, y)
 
         decision = np.argmax(
                 summation_output

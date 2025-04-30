@@ -1,5 +1,4 @@
 import numpy as np
-
 from base.Kernel import Kernel
 
 
@@ -9,23 +8,10 @@ class PatternLayer():
         self.__kernel = kernel
         self.__pattern_units = {'W': None, 'y': None}
 
-    def __normalize_to_unit_len(self, x) -> np.ndarray:
-        """Nomalize the feature vectors X to unit length
-
-        Args:
-            x (np.ndarray)
-
-        Returns:
-            np.ndarray: Normalized feature vectors with the same shape
-        """
-        norms = np.linalg.norm(x, axis=1, keepdims=True)
-        return x / norms
-
     def fit(self, X, y):
         """Fitting the train data to the pattern layer."""
 
-        X_normalized = self.__normalize_to_unit_len(X)
-        self.__pattern_units = {'W': X_normalized, 'y': y}
+        self.__pattern_units = {'W': X, 'y': y}
 
     def forward(self, input):
         """Forwarding the pattern layer.
@@ -37,7 +23,23 @@ class PatternLayer():
             np.ndarray (2, number of patterns): Pairs of kernel funtion values
                 and target values.
         """
-        X_normalized = self.__normalize_to_unit_len(input)
         W = self.__pattern_units['W']
-        kernel_values = self.__kernel(W, X_normalized)
-        return [kernel_values, self.__pattern_units['y']]
+        y = self.__pattern_units['y']
+
+        kernel_values_list = []
+        distances_list = []
+        y_list = []
+
+        for class_label in np.unique(y):
+            W_class = W[y == class_label]
+            y_class = y[y == class_label]
+            k_values, distances = self.__kernel(W_class, input)
+            distances_list.append(distances)
+            kernel_values_list.append(k_values)
+            y_list.append(y_class)
+
+        kernel_values = np.concatenate(kernel_values_list)
+        y_values = np.concatenate(y_list)
+        d_values = np.concatenate(distances_list)
+
+        return [kernel_values, y_values, d_values]

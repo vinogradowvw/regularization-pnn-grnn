@@ -1,4 +1,5 @@
 import numpy as np
+from Distance.distance import distance_l2
 from base.Kernel import Kernel
 
 
@@ -10,6 +11,6 @@ class GaussianKernel(Kernel):
     def __call__(self, w, x):
         """
         Computes the Gaussian kernel value(s) between w and x.
-        Assumes w and x are normalized to unit length.
         """
-        return np.exp((np.dot(x, w.T)-1)/np.float_power(self._sigma, 2))[0]
+        dists = distance_l2(w, x)
+        return np.exp(-dists / (2 * self._sigma**2)), dists
