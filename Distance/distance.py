@@ -6,4 +6,4 @@ def distance_l1(x, w):
 
 
 def distance_l2(x, w):
-    return np.sum((w - x)**2, axis=1)
+    return np.sqrt(np.sum((w - x)**2, axis=1))

@@ -7,6 +7,7 @@ class LaplaceKernel(Kernel):
 
     def __init__(self, sigma: float):
         super().__init__(sigma)
+        self.distance = 'l2'
 
     def __call__(self, w, x):
         """

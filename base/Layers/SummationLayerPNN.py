@@ -6,7 +6,7 @@ class SummationLayerPNN:
     def __init__(self, classes):
         self.__classes = classes
 
-    def forward(self, inputs, y):
+    def forward(self, inputs, y, weights):
         """Forwarding the summation layer.
 
         Args:
@@ -19,5 +19,10 @@ class SummationLayerPNN:
         output = np.zeros(len(self.__classes))
         for c in self.__classes:
             class_mask = (y == c)
-            output[c] = np.sum(inputs[class_mask])
+            sum_k = np.sum(inputs[class_mask])
+            if weights is not None:
+                normalization = np.sum(weights)
+            else:
+                normalization = len(inputs[class_mask])
+            output[c] = sum_k / normalization
         return output

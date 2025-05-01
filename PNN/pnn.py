@@ -2,6 +2,8 @@ import numpy as np
 from base.Estimator import Estimator
 from base.Layers import PatternLayer
 from base.Layers import SummationLayerPNN
+from base.Layers.RegularizationLayer import RegularizationLayer
+from base.Layers import OutputLayerPNN
 
 
 class PNN(Estimator):
@@ -10,15 +12,20 @@ class PNN(Estimator):
 
     Attributes:
         __n_classes (int): Number of classes in the classification problem.
-        __losses (np.ndarray): Array of loss weights for each class.
         __pattern_layer (PatternLayer): Layer for computing kernel values.
         __summation_layer (SummationLayerPNN): Layer for summing kernel values per class.
+        __outpu_layer (OutputLayerPNN).
         __classes (np.ndarray): Unique class labels from the training data.
         __class_counts (np.ndarray): Number of training patterns per class.
-        __prior (np.ndarray): Prior probabilities for each class.
     """
 
-    def __init__(self, kernel, sigma, n_classes, losses):
+    def __init__(self,
+                 kernel,
+                 sigma,
+                 n_classes,
+                 losses,
+                 regularization=None,
+                 tau=0.5):
         """Initialize the PNN model.
 
         Args:
@@ -32,9 +39,15 @@ class PNN(Estimator):
             raise ValueError("""Number of class must match
                                 the length of loasses list""")
         self.__n_classes = n_classes
-        self.__losses = np.array(losses)
         self.__pattern_layer = PatternLayer(self._kernel)
+        self.__regularization_type = regularization
+
+        if regularization:
+            self.__regularization_layer = RegularizationLayer(regularization,
+                                                              tau)
+
         self.__summation_layer = SummationLayerPNN(list(range(self.__n_classes)))
+        self.__output_layer = OutputLayerPNN(losses)
 
     def fit(self, X, y):
         """Train the PNN model on the provided data.
@@ -44,12 +57,8 @@ class PNN(Estimator):
             y (np.ndarray): Target labels of shape (n_samples,), where each label is an
                 integer from 0 to n_classes-1.
         """
-        unique = np.unique(y, return_counts=True)       # storing classes
+        unique = np.unique(y, return_counts=True)   # storing classes
         self.__classes = unique[0]
-        print(self.__classes)
-
-        self.__class_counts = unique[1]     # storing the number of patterns in each class
-
 
         if (len(self.__classes) != self.__n_classes):
             raise ValueError(
@@ -65,10 +74,10 @@ class PNN(Estimator):
                 """)
 
         self.__pattern_layer.fit(X, y)
-        self.__prior = self.__class_counts / len(y)
+        self.__output_layer.fit(X, y)
 
     def predict(self, X):
-        """Predict the class labels for the input data.
+        """Predict the class label for the input data.
 
         Args:
             X (np.ndarray): Input data of shape (1, n_features).
@@ -78,13 +87,10 @@ class PNN(Estimator):
         """
 
         k, y, d = self.__pattern_layer.forward(X)
-        summation_output = self.__summation_layer.forward(k, y)
-
-        decision = np.argmax(
-                summation_output
-                * self.__losses
-                * self.__prior
-                / self.__class_counts
-        )       # computing the final decision
+        weights = None
+        if self.__regularization_type:
+            k, y, weights = self.__regularization_layer.forward(k, y, d)
+        likelihood = self.__summation_layer.forward(k, y, weights)
+        decision = self.__output_layer.forward(likelihood)
 
         return decision

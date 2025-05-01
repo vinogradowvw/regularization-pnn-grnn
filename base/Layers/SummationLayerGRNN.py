@@ -9,4 +9,4 @@ class SummationLayerGRNN:
     def forward(self, inputs, y):
         marginal = np.sum(inputs)
         weighted_y = np.sum(inputs*y)
-        return weighted_y / marginal
+        return weighted_y, marginal
