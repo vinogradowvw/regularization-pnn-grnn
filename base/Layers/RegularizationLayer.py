@@ -24,15 +24,19 @@ class RegularizationLayer():
                 self.__prior_kernel = GaussianKernel(tau)
         self.distances = {}
 
-    def __distance_prior(self, distance):
-        k_value, _ = self.__prior_kernel(np.array([[distance]]),
-                                         np.array([[0]]))
-        return k_value[0]
+    def __distance_prior(self, distances):
+        k_values, _ = self.__prior_kernel(distances.reshape(-1, 1),
+                                          np.array([[0]]))
+        return k_values
 
     def forward(self, pattern_kernels, y, distances):
-        priors = np.array([self.__distance_prior(d) for d in distances])
+        priors = self.__distance_prior(distances)
+    
         if 'dropout' in self.__regularization_type:
-            dropout = [self.__dropout(p) for p in priors]
+            while True:
+                dropout = np.array([self.__dropout(p) for p in priors])
+                if np.any(dropout):
+                    break
             adjusted_kernels = pattern_kernels * dropout
             return adjusted_kernels, y, dropout
         else:

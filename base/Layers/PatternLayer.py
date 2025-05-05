@@ -11,7 +11,7 @@ class PatternLayer():
     def fit(self, X, y):
         """Fitting the train data to the pattern layer."""
 
-        self.__pattern_units = {'W': X, 'y': y}
+        self.__pattern_units = {'W': np.array(X), 'y': np.array(y)}
 
     def forward(self, input):
         """Forwarding the pattern layer.

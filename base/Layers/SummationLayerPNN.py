@@ -24,5 +24,7 @@ class SummationLayerPNN:
                 normalization = np.sum(weights)
             else:
                 normalization = len(inputs[class_mask])
+            if normalization == 0 or np.isnan(normalization):
+                raise ZeroDivisionError('The marginal probability is 0. Try set higher sigma or tau parameters')
             output[c] = sum_k / normalization
         return output
