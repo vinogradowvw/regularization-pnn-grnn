@@ -21,9 +21,9 @@ class RegularizationLayer():
         if 'dropout' in regularization_type:
             self.__dropout = BernoulliDropout()
             if regularization_type[1] == 'l1':
-                self.__prior = LaplacePrior(tau)
+                self.__prior = LaplacePrior(tau, type='cumulative')
             if regularization_type[1] == 'l2':
-                self.__prior = GaussianPrior(tau)
+                self.__prior = GaussianPrior(tau, type='cumulative')
         self.distances = {}
 
     def __prior_decay(self, distances):
@@ -34,7 +34,7 @@ class RegularizationLayer():
     def forward(self, pattern_kernels, y, distances):
         
         if 'dropout' in self.__regularization_type:
-            priors = self.__prior(distances)
+            priors = 1 - self.__prior(distances)
             i = 0
             while i <= 1000:
                 dropout = np.array([self.__dropout(p) for p in priors])
