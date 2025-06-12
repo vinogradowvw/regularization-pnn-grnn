@@ -2,7 +2,6 @@ import numpy as np
 from base.Estimator import Estimator
 from base.Layers import PatternLayer
 from base.Layers import SummationLayerPNN
-from base.Layers.RegularizationLayer import RegularizationLayer
 from base.Layers import OutputLayerPNN
 
 
@@ -23,9 +22,8 @@ class PNN(Estimator):
                  kernel,
                  sigma,
                  n_classes,
-                 losses,
-                 regularization=None,
-                 tau=0.5):
+                 losses
+                 ):
         """Initialize the PNN model.
 
         Args:
@@ -40,12 +38,6 @@ class PNN(Estimator):
                                 the length of loasses list""")
         self.__n_classes = n_classes
         self.__pattern_layer = PatternLayer(self._kernel, model='pnn')
-        self.__regularization_type = regularization
-
-        if regularization:
-            self.__regularization_layer = RegularizationLayer(regularization,
-                                                              tau)
-
         self.__summation_layer = SummationLayerPNN(list(range(self.__n_classes)))
         self.__output_layer = OutputLayerPNN(losses)
 
@@ -87,10 +79,7 @@ class PNN(Estimator):
         """
 
         k, y, d = self.__pattern_layer.forward(X)
-        weights = None
-        if self.__regularization_type:
-            k, y, weights = self.__regularization_layer.forward(k, y, d)
-        likelihood = self.__summation_layer.forward(k, y, weights)
+        likelihood = self.__summation_layer.forward(k, y, None)
         decision = self.__output_layer.forward(likelihood)
 
         return decision

@@ -1,1 +1,2 @@
-from .pnn import PNN
+from .PNN import PNN
+from .TrainablePNN import TrainablePNN

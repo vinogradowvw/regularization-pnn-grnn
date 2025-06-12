@@ -4,6 +4,7 @@ import torch.optim as optim
 
 
 class TrainablePatternLayerGRNN(nn.Module):
+
     def __init__(self, sigma, tau, regularization: str):
         super().__init__()
         self.sigma = sigma

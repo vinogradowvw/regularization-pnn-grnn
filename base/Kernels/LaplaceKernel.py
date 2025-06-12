@@ -1,6 +1,6 @@
 import numpy as np
-from Distance.distance import distance_l1
-from base.Kernel import Kernel
+from base.Distance import distance_l1
+from base.Kernels.AbcKernel import Kernel
 
 
 class LaplaceKernel(Kernel):

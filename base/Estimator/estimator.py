@@ -1,8 +1,7 @@
-import numpy as np
 from abc import ABC, abstractmethod
-from Kernels import GaussianKernel
-from base.Kernel import Kernel
-from typing import Dict
+from base.Kernels import GaussianKernel
+from base.Kernels import Kernel
+from typing import Dict, Optional
 
 
 class Estimator(ABC):
@@ -11,15 +10,13 @@ class Estimator(ABC):
         'gaussian': GaussianKernel
     }
 
-    def __init__(self, kernel: str, sigma: float):
-        self._kernel = self._kernel_conf[kernel](sigma)
+    def __init__(self, kernel: Optional[str], sigma: float):
+        if kernel is not None:
+            self._kernel = self._kernel_conf[kernel](sigma)
 
     @abstractmethod
     def fit(self, X, y):
         raise NotImplementedError("'fit' method is not implemented")
-
-    def _compute_kernel_values(self, x):
-        return self._kernel(self._pattern_units, x)
 
     @abstractmethod
     def predict(self, X):

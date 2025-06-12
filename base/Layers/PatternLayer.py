@@ -1,5 +1,5 @@
 import numpy as np
-from base.Kernel import Kernel
+from base.Kernels import Kernel
 
 
 class PatternLayer():

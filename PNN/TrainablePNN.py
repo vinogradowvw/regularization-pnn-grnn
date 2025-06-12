@@ -6,20 +6,10 @@ from base.Layers.TrainablePatternLayerPNN import TrainablePatternLayerPNN
 
 
 class TrainablePNN(Estimator):
-    """Probabilistic Neural Network (PNN) for classification tasks.
-
-
-    Attributes:
-        __n_classes (int): Number of classes in the classification problem.
-        __pattern_layer (PatternLayer): Layer for computing kernel values.
-        __summation_layer (SummationLayerPNN): Layer for summing kernel values per class.
-        __outpu_layer (OutputLayerPNN).
-        __classes (np.ndarray): Unique class labels from the training data.
-        __class_counts (np.ndarray): Number of training patterns per class.
+    """Trainable Probabilistic Neural Network for classification tasks.
     """
 
     def __init__(self,
-                 kernel,
                  sigma,
                  n_classes,
                  losses,
@@ -28,12 +18,13 @@ class TrainablePNN(Estimator):
         """Initialize the PNN model.
 
         Args:
-            kernel (str): Type of kernel to use (e.g., 'gaussian').
             sigma (float): Kernel smoothing (bandwith) parameter.
             n_classes (int): Number of classes in the classification problem.
             losses (list): Loss weights for each class.
+            regularization (str): 'l1' or 'l2' regularization
+            tau (float): prior scale parameter
         """
-        super().__init__(kernel, sigma)
+        super().__init__(None, sigma)
         if (n_classes != len(losses)):
             raise ValueError("""Number of class must match
                                 the length of loasses list""")
@@ -81,8 +72,8 @@ class TrainablePNN(Estimator):
              np.ndarray (n_samples): Predicted labels.
         """
 
-        weighed_N, y, weights = self.pattern_layer.forward(X)
-        likelihood = self.__summation_layer.forward(weighed_N, y, weights)
+        weighed_N, y, beta = self.pattern_layer.forward(X)
+        likelihood = self.__summation_layer.forward(weighed_N, y, beta)
         decision = self.__output_layer.forward(likelihood)
 
         return decision

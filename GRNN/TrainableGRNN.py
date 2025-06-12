@@ -6,12 +6,11 @@ from base.Layers.TrainablePatternLayerGRNN import TrainablePatternLayerGRNN
 class TrainableGRNN(Estimator):
 
     def __init__(self,
-                 kernel,
                  sigma,
                  regularization,
                  tau=0.5):
 
-        super().__init__(kernel, sigma)
+        super().__init__(None, sigma)
 
         self.pattern_layer = TrainablePatternLayerGRNN(sigma=sigma,
                                                        tau=tau,
