@@ -18,7 +18,7 @@ class SummationLayerPNN:
         """
         output = np.zeros(len(self.__classes))
         for c in self.__classes:
-            class_mask = (y == c)
+            class_mask = (y == int(c))
             sum_k = np.sum(inputs[class_mask])
             if weights is not None:
                 normalization = np.sum(weights)

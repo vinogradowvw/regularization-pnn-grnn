@@ -14,7 +14,7 @@ class GRNN(Estimator):
 
         super().__init__(kernel, sigma)
 
-        self.__pattern_layer = PatternLayer(self._kernel)
+        self.__pattern_layer = PatternLayer(self._kernel, model='grnn')
 
         self.__regularization_type = regularization
 

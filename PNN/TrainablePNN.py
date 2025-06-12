@@ -1,12 +1,11 @@
 import numpy as np
 from base.Estimator import Estimator
-from base.Layers import PatternLayer
 from base.Layers import SummationLayerPNN
-from base.Layers.RegularizationLayer import RegularizationLayer
 from base.Layers import OutputLayerPNN
+from base.Layers.TrainablePatternLayerPNN import TrainablePatternLayerPNN
 
 
-class PNN(Estimator):
+class TrainablePNN(Estimator):
     """Probabilistic Neural Network (PNN) for classification tasks.
 
 
@@ -24,7 +23,7 @@ class PNN(Estimator):
                  sigma,
                  n_classes,
                  losses,
-                 regularization=None,
+                 regularization,
                  tau=0.5):
         """Initialize the PNN model.
 
@@ -39,12 +38,8 @@ class PNN(Estimator):
             raise ValueError("""Number of class must match
                                 the length of loasses list""")
         self.__n_classes = n_classes
-        self.__pattern_layer = PatternLayer(self._kernel, model='pnn')
-        self.__regularization_type = regularization
 
-        if regularization:
-            self.__regularization_layer = RegularizationLayer(regularization,
-                                                              tau)
+        self.pattern_layer = TrainablePatternLayerPNN(sigma, tau, regularization, n_classes)
 
         self.__summation_layer = SummationLayerPNN(list(range(self.__n_classes)))
         self.__output_layer = OutputLayerPNN(losses)
@@ -57,7 +52,7 @@ class PNN(Estimator):
             y (np.ndarray): Target labels of shape (n_samples,), where each label is an
                 integer from 0 to n_classes-1.
         """
-        unique = np.unique(y, return_counts=True)   # storing classes
+        unique = np.unique(y, return_counts=True)
         self.__classes = unique[0]
 
         if (len(self.__classes) != self.__n_classes):
@@ -73,7 +68,7 @@ class PNN(Estimator):
                 e.g.: [0, 1, 3].
                 """)
 
-        self.__pattern_layer.fit(X, y)
+        self.pattern_layer.fit(X, y)
         self.__output_layer.fit(X, y)
 
     def predict(self, X):
@@ -86,11 +81,8 @@ class PNN(Estimator):
              np.ndarray (n_samples): Predicted labels.
         """
 
-        k, y, d = self.__pattern_layer.forward(X)
-        weights = None
-        if self.__regularization_type:
-            k, y, weights = self.__regularization_layer.forward(k, y, d)
-        likelihood = self.__summation_layer.forward(k, y, weights)
+        weighed_N, y, weights = self.pattern_layer.forward(X)
+        likelihood = self.__summation_layer.forward(weighed_N, y, weights)
         decision = self.__output_layer.forward(likelihood)
 
         return decision

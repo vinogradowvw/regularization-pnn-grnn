@@ -14,6 +14,7 @@ class SummationLayerGRNN:
 
         marginal = np.sum(filtered_inputs)
         weighted_y = np.sum(filtered_inputs * filtered_y)
+
         
         if marginal == 0 or np.isnan(marginal):
             raise ZeroDivisionError('The marginal probability is 0. Try set higher sigma or tau parameters')
