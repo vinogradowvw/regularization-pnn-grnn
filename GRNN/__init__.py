@@ -1,2 +1,2 @@
-from .GRNN import GRNN
+from .grnn import GRNN
 from .TrainableGRNN import TrainableGRNN
