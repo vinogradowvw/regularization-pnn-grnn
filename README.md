@@ -9,3 +9,5 @@ This repository was created as part of the author's bachelor's thesis. Here you 
    - ```\Distance``` - distance metrics comptation
    - ```\Layers``` - classes for the layers of networks
    - ```\Kernels``` - kernles classes.
+ - ```\visualization``` - folder for visualization outputs
+ - ```\data``` - datasets, on which the evaluation was performed
