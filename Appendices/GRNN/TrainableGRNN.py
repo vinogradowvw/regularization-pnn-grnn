@@ -21,11 +21,8 @@ class TrainableGRNN(Estimator):
     def fit(self, X, y):
         self.pattern_layer.fit(X, y)
 
-    def predict_single(self, X):
+    def predict(self, X):
         k, y, w = self.pattern_layer.forward(X)
         nominator, denominator = self.__summation_layer.forward(k, y)
         estimation = nominator / denominator
         return estimation
-
-    def predict(self, X):
-        return [self.predict_single([x]) for x in X]
